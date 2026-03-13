@@ -64,5 +64,7 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: |
+            ${{ env.DOCKERHUB_IMAGE }}:dev-${{ github.sha }}
             ${{ env.DOCKERHUB_IMAGE }}:dev
+            ${{ env.GHCR_IMAGE }}:dev-${{ github.sha }}
             ${{ env.GHCR_IMAGE }}:dev
