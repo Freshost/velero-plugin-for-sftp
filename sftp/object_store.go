@@ -25,6 +25,8 @@ const (
 	configTimeout                      = "timeout"
 	configEncryptionKeyPath            = "encryptionKeyPath"
 	configCredentialsFile              = "credentialsFile"
+	configBucket                       = "bucket"
+	configPrefix                       = "prefix"
 )
 
 var allowedConfigKeys = []string{
@@ -40,6 +42,8 @@ var allowedConfigKeys = []string{
 	configTimeout,
 	configEncryptionKeyPath,
 	configCredentialsFile,
+	configBucket,
+	configPrefix,
 }
 
 // ObjectStore implements the Velero ObjectStore interface for SFTP.
