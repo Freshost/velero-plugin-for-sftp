@@ -1,8 +1,8 @@
 name: Release
 
 on:
-  push:
-    tags: ["v*"]
+  release:
+    types: [published]
 
 env:
   DOCKERHUB_IMAGE: freshost/velero-plugin-for-sftp
@@ -44,10 +44,6 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Extract version
-        id: version
-        run: echo "tag=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
-
       - name: Build and push multi-arch image
         uses: docker/build-and-push-action@v6
         with:
@@ -55,12 +51,7 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: |
-            ${{ env.DOCKERHUB_IMAGE }}:${{ steps.version.outputs.tag }}
+            ${{ env.DOCKERHUB_IMAGE }}:${{ github.event.release.tag_name }}
             ${{ env.DOCKERHUB_IMAGE }}:latest
-            ${{ env.GHCR_IMAGE }}:${{ steps.version.outputs.tag }}
+            ${{ env.GHCR_IMAGE }}:${{ github.event.release.tag_name }}
             ${{ env.GHCR_IMAGE }}:latest
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          generate_release_notes: true
