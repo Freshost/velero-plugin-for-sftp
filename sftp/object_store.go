@@ -49,7 +49,7 @@ var allowedConfigKeys = []string{
 // ObjectStore implements the Velero ObjectStore interface for SFTP.
 type ObjectStore struct {
 	log       logrus.FieldLogger
-	client    *Client
+	client    sftpProvider
 	basePath  string
 	encryptor *encryptor
 }
@@ -347,8 +347,10 @@ func (o *ObjectStore) DeleteObject(bucket, key string) error {
 }
 
 // CreateSignedURL is not supported for SFTP storage.
+// Returns ("", nil) so the Velero download-request controller marks the
+// request as processed instead of requeuing it indefinitely.
 func (o *ObjectStore) CreateSignedURL(bucket, key string, ttl time.Duration) (string, error) {
-	return "", fmt.Errorf("CreateSignedURL is not supported for SFTP storage")
+	return "", nil
 }
 
 func (o *ObjectStore) objectPath(bucket, key string) string {

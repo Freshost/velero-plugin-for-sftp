@@ -97,14 +97,14 @@ func (c *Client) connect() error {
 	return nil
 }
 
-// SFTP returns a live SFTP client, reconnecting if necessary.
-func (c *Client) SFTP() (*sftp.Client, error) {
+// SFTP returns a live SFTP filesystem, reconnecting if necessary.
+func (c *Client) SFTP() (sftpFS, error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
 	if c.sftpClient != nil {
 		if _, err := c.sftpClient.Getwd(); err == nil {
-			return c.sftpClient, nil
+			return &realSFTP{c: c.sftpClient}, nil
 		}
 		c.log.Warn("SFTP connection lost, reconnecting...")
 		c.close()
@@ -113,7 +113,7 @@ func (c *Client) SFTP() (*sftp.Client, error) {
 	if err := c.connect(); err != nil {
 		return nil, err
 	}
-	return c.sftpClient, nil
+	return &realSFTP{c: c.sftpClient}, nil
 }
 
 // Close closes both SFTP and SSH connections.
