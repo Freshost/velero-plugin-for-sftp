@@ -50,6 +50,7 @@ var allowedConfigKeys = []string{
 	"sftpPort",
 	"sftpPath",
 	"sftpUsername",
+	"sftpPassword",
 	"sftpKeyPath",
 	"sftpKeyData",
 	"sftpKnownHostsData",
