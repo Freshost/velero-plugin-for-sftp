@@ -44,6 +44,15 @@ var allowedConfigKeys = []string{
 	configCredentialsFile,
 	configBucket,
 	configPrefix,
+	// Kopia SFTP backend keys — passed through BSL config, not used by ObjectStore
+	// but must be allowed so BSL validation doesn't reject them.
+	"sftpHost",
+	"sftpPort",
+	"sftpPath",
+	"sftpUsername",
+	"sftpKeyPath",
+	"sftpKeyData",
+	"sftpKnownHostsData",
 }
 
 // ObjectStore implements the Velero ObjectStore interface for SFTP.
