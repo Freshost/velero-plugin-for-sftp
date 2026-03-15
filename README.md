@@ -107,62 +107,41 @@ spec:
 | `basePath` | No | `/` | Root directory on the SFTP server |
 | `timeout` | No | `30s` | SSH connection timeout (Go duration) |
 | `insecureSkipHostKeyVerification` | No | `false` | Skip SSH host key verification |
-| `encryptionKeyPath` | No | | Path to age identity file for encryption |
 
 ## Encryption
 
-Backups can be encrypted client-side using [age](https://age-encryption.org/) before uploading to the SFTP server.
+Backups can be encrypted client-side using [age](https://age-encryption.org/) before uploading to the SFTP server. The encryption key is stored in the credentials file alongside SSH credentials -- no extra volume mounts or secrets needed.
 
-### Setup
+Add `encryptionKey` to your credentials file:
 
-Generate an age key:
+```yaml
+user: u123456
+password: your-password
+encryptionKey: AGE-SECRET-KEY-1QFNJ...
+```
+
+Generate a key with:
 
 ```bash
-age-keygen -o age-identity.txt
+age-keygen 2>/dev/null | grep "AGE-SECRET-KEY"
 ```
 
 For post-quantum resistant encryption:
 
 ```bash
-age-keygen -pq -o age-identity.txt
+age-keygen -pq 2>/dev/null | grep "AGE-SECRET-KEY"
 ```
 
-Create a Secret and mount it into the Velero deployment:
-
-```bash
-kubectl create secret generic age-encryption-key \
-  --namespace velero \
-  --from-file=identity=./age-identity.txt
-```
-
-Add the volume mount to your Velero deployment (e.g. via Helm values):
-
-```yaml
-# Helm values.yaml
-configuration:
-  extraVolumes:
-    - name: age-key
-      secret:
-        secretName: age-encryption-key
-  extraVolumeMounts:
-    - name: age-key
-      mountPath: /age
-      readOnly: true
-```
-
-Then reference it in BSL config:
-
-```yaml
-config:
-  encryptionKeyPath: /age/identity
-```
+When `encryptionKey` is present in credentials, all backup data is encrypted before upload and decrypted on restore automatically.
 
 ### Decrypting backups manually
 
 Download a backup file from the SFTP server and decrypt it locally:
 
 ```bash
-age -d -i age-identity.txt backup.tar.gz > backup-decrypted.tar.gz
+# Save your key to a file
+echo "AGE-SECRET-KEY-1QFNJ..." > identity.txt
+age -d -i identity.txt backup.tar.gz > backup-decrypted.tar.gz
 ```
 
 ## Hetzner Storage Box Example
@@ -176,10 +155,8 @@ metadata:
 stringData:
   credentials: |
     user: u123456
-    privateKey: |
-      -----BEGIN OPENSSH PRIVATE KEY-----
-      b3BlbnNzaC1rZXktdjEAAAAA...
-      -----END OPENSSH PRIVATE KEY-----
+    password: your-password
+    encryptionKey: AGE-SECRET-KEY-1QFNJ...
     knownHosts: |
       [u123456.your-storagebox.de]:23 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAA...
 ---

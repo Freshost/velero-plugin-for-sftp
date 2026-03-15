@@ -41,12 +41,19 @@ import (
 //	password: mysecretpassword
 //	knownHosts: |
 //	  [uXXXXXX.your-storagebox.de]:23 ssh-ed25519 AAAAC3NzaC1...
+//
+// Example with encryption:
+//
+//	user: uXXXXXX
+//	password: mysecretpassword
+//	encryptionKey: AGE-SECRET-KEY-1QFNJ...
 type Credentials struct {
 	User                 string `yaml:"user"`
 	Password             string `yaml:"password,omitempty"`
 	PrivateKey           string `yaml:"privateKey,omitempty"`
 	PrivateKeyPassphrase string `yaml:"privateKeyPassphrase,omitempty"`
 	KnownHosts           string `yaml:"knownHosts,omitempty"`
+	EncryptionKey        string `yaml:"encryptionKey,omitempty"`
 }
 
 // parseCredentialsFile reads and parses a YAML credentials file.

@@ -39,7 +39,6 @@ const (
 	configInsecureSkipHostVerification = "insecureSkipHostKeyVerification"
 	configBasePath                     = "basePath"
 	configTimeout                      = "timeout"
-	configEncryptionKeyPath            = "encryptionKeyPath"
 	configCredentialsFile              = "credentialsFile"
 	configBucket                       = "bucket"
 	configPrefix                       = "prefix"
@@ -56,7 +55,6 @@ var allowedConfigKeys = []string{
 	configInsecureSkipHostVerification,
 	configBasePath,
 	configTimeout,
-	configEncryptionKeyPath,
 	configCredentialsFile,
 	configBucket,
 	configPrefix,
@@ -139,6 +137,14 @@ func (o *ObjectStore) Init(config map[string]string) error {
 		if creds.KnownHosts != "" {
 			cfg.KnownHostsData = creds.KnownHosts
 		}
+		if creds.EncryptionKey != "" {
+			enc, err := newEncryptorFromString(creds.EncryptionKey)
+			if err != nil {
+				return fmt.Errorf("initializing encryption from credentials: %w", err)
+			}
+			o.encryptor = enc
+			o.log.Info("Encryption enabled (from credentials file)")
+		}
 	} else {
 		// Fallback: individual config keys (for manual setups without BSL credential).
 		cfg.User = config[configUser]
@@ -150,16 +156,6 @@ func (o *ObjectStore) Init(config map[string]string) error {
 
 	if cfg.User == "" {
 		return fmt.Errorf("'user' is required (in credentials file or config)")
-	}
-
-	// Age encryption (separate from credentials — different security lifecycle).
-	if keyPath := config[configEncryptionKeyPath]; keyPath != "" {
-		enc, err := newEncryptor(keyPath)
-		if err != nil {
-			return fmt.Errorf("initializing encryption: %w", err)
-		}
-		o.encryptor = enc
-		o.log.Info("Age encryption enabled")
 	}
 
 	o.basePath = cfg.BasePath

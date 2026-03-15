@@ -408,4 +408,41 @@ func TestParseCredentialsFile(t *testing.T) {
 			t.Fatal("expected error when no auth method provided")
 		}
 	})
+
+	t.Run("with encryption key", func(t *testing.T) {
+		f := filepath.Join(t.TempDir(), "creds.yaml")
+		data := "user: admin\npassword: secret\nencryptionKey: AGE-SECRET-KEY-1AFC8AH6ZQT4CQATW5Q848J72XETMTNN47JVN8EH05PA4RG7PRFRSC0Y3RT\n"
+		os.WriteFile(f, []byte(data), 0644)
+
+		creds, err := parseCredentialsFile(f)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if creds.EncryptionKey == "" {
+			t.Fatal("expected encryptionKey to be set")
+		}
+	})
+}
+
+func TestInitWithEncryptionFromCredentials(t *testing.T) {
+	dir := t.TempDir()
+	credsFile := filepath.Join(dir, "creds.yaml")
+	data := "user: admin\npassword: secret\nencryptionKey: AGE-SECRET-KEY-1AFC8AH6ZQT4CQATW5Q848J72XETMTNN47JVN8EH05PA4RG7PRFRSC0Y3RT\n"
+	os.WriteFile(credsFile, []byte(data), 0644)
+
+	store := &ObjectStore{log: testLogger()}
+	err := store.Init(map[string]string{
+		"host":            "localhost",
+		"credentialsFile": credsFile,
+	})
+
+	// Init will fail at Connect() because there's no real SFTP server,
+	// but encryption should be initialized before that point.
+	// We check that encryptor is set.
+	if store.encryptor == nil {
+		if err != nil {
+			t.Fatalf("Init failed before setting encryptor: %v", err)
+		}
+		t.Fatal("expected encryptor to be initialized from credentials")
+	}
 }
