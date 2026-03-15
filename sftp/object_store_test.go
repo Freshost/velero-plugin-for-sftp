@@ -1,3 +1,19 @@
+/*
+Copyright 2025 Freshost.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package sftp
 
 import (
@@ -103,9 +119,9 @@ func (w *fakeWalker) Step() bool {
 	return w.index < len(w.entries)
 }
 
-func (w *fakeWalker) Path() string    { return w.entries[w.index].path }
+func (w *fakeWalker) Path() string      { return w.entries[w.index].path }
 func (w *fakeWalker) Stat() os.FileInfo { return w.entries[w.index].info }
-func (w *fakeWalker) Err() error      { return nil }
+func (w *fakeWalker) Err() error        { return nil }
 
 // --- fake provider ---
 
@@ -114,7 +130,7 @@ type fakeProvider struct {
 }
 
 func (f *fakeProvider) SFTP() (sftpFS, error) { return f.fs, nil }
-func (f *fakeProvider) Connect() error         { return nil }
+func (f *fakeProvider) Connect() error        { return nil }
 
 // --- helpers ---
 

@@ -1,27 +1,35 @@
 # Velero Plugin for SFTP
 
+[![CI](https://github.com/Freshost/velero-plugin-for-sftp/actions/workflows/ci.yml/badge.svg)](https://github.com/Freshost/velero-plugin-for-sftp/actions/workflows/ci.yml)
+
 A [Velero](https://velero.io) ObjectStore plugin that stores backups on any SFTP server. Built for use with [Hetzner Storage Box](https://www.hetzner.com/storage/storage-box/) and similar SFTP-accessible storage.
 
 Supports optional client-side encryption using [age](https://age-encryption.org/), so backup data is encrypted before it leaves the cluster.
 
+## Compatibility
+
+| Plugin Version | Velero Version |
+|----------------|----------------|
+| v0.1.x         | v1.17.x        |
+
 ## Features
 
-- **Direct SFTP backup storage** — no S3 proxy (MinIO, SeaweedFS) needed
-- **Age encryption** — optional client-side encryption with X25519 or post-quantum keys
-- **Auto-reconnect** — recovers from dropped SSH connections
-- **Multi-arch** — linux/amd64 and linux/arm64
-- **Streaming I/O** — no local disk buffering, data streams directly to the SFTP server
+- **Direct SFTP backup storage** -- no S3 proxy (MinIO, SeaweedFS) needed
+- **Age encryption** -- optional client-side encryption with X25519 or post-quantum keys
+- **Auto-reconnect** -- recovers from dropped SSH connections
+- **Multi-arch** -- linux/amd64 and linux/arm64
+- **Streaming I/O** -- no local disk buffering, data streams directly to the SFTP server
 
 ## Installation
 
 ```bash
-velero install --plugins freshost/velero-plugin-for-sftp:latest ...
+velero install --plugins ghcr.io/freshost/velero-plugin-for-sftp:v0.1.0 ...
 ```
 
 Or add to an existing Velero deployment:
 
 ```bash
-velero plugin add freshost/velero-plugin-for-sftp:latest
+velero plugin add ghcr.io/freshost/velero-plugin-for-sftp:v0.1.0
 ```
 
 ## Configuration
@@ -78,7 +86,7 @@ metadata:
   name: sftp
   namespace: velero
 spec:
-  provider: freshost.net/sftp
+  provider: velero.io/sftp
   credential:
     name: sftp-credentials
     key: credentials
@@ -90,7 +98,7 @@ spec:
     basePath: /home/backups
 ```
 
-BSL config options:
+### BSL Config Options
 
 | Key | Required | Default | Description |
 |---|---|---|---|
@@ -157,7 +165,7 @@ Download a backup file from the SFTP server and decrypt it locally:
 age -d -i age-identity.txt backup.tar.gz > backup-decrypted.tar.gz
 ```
 
-## Hetzner Storage Box example
+## Hetzner Storage Box Example
 
 ```yaml
 apiVersion: v1
@@ -181,7 +189,7 @@ metadata:
   name: hetzner
   namespace: velero
 spec:
-  provider: freshost.net/sftp
+  provider: velero.io/sftp
   credential:
     name: hetzner-sftp
     key: credentials
@@ -193,14 +201,20 @@ spec:
     basePath: /home
 ```
 
-## Building from source
+## Building from Source
 
 ```bash
 make build      # build binary
-make test       # run tests
+make test       # run tests with coverage
+make lint       # run linter
 make container  # build Docker image
+make ci         # verify modules + test
 ```
+
+## Filing Issues
+
+If you encounter a bug, have a feature request, or need help, please [open an issue](https://github.com/Freshost/velero-plugin-for-sftp/issues).
 
 ## License
 
-Apache 2.0
+Apache 2.0 -- see [LICENSE](LICENSE) for details.

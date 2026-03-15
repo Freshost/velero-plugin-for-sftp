@@ -1,0 +1,7 @@
+.git/
+.github/
+*.md
+LICENSE
+Makefile
+coverage.out
+velero-plugin-for-sftp
