@@ -9,7 +9,7 @@ import (
 
 func main() {
 	veleroplugin.NewServer().
-		RegisterObjectStore("freshost.net/sftp", newSFTPObjectStore).
+		RegisterObjectStore("velero.io/sftp", newSFTPObjectStore).
 		Serve()
 }
 
